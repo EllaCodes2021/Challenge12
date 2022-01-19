@@ -130,31 +130,30 @@ function addDepartment(){
         });
     });
 };
-function addRole(){
+function addNewRole(departmentID, departmentList){
+    let dId = '';
     inquirer.prompt([{
         type: 'list',
         name: 'department_id',
         message: 'What department does this role belong to?',
-        choices: connection.query(`SELECT department.name AS department`, (err, rows) => {
-            if (err){
-                throw err;
-            }else {
-                return (rows);
-            }
-        }),
+        choices: departmentList
         },{
         type: 'input',
         name: 'title',
-        message: 'Enter New Title Name'},
-        {
+        message: 'Enter New Title'
+        },{
         type: 'input',
         name: 'salary',
-        message: 'Enter New Role Name'   
+        message: "Enter New Role's Salary"   
         }
     ]).then(answers => {
-        console.log({answers});
+        for(let i=0; i < departmentID.length; i++){
+            if(answers.department_id === departmentList[i]){
+                dId+= departmentID[i];
+            }
+        }
         const sql = `INSERT INTO role (department_id, title, salary) VALUES (?,?,?)`;
-        connection.query(sql, answers.department_id, answers.title, answers.salary, (err,rows) => {
+        connection.query(sql, [parseInt(dId), answers.title, parseInt(answers.salary)], (err,rows) => {
             if (err)
                 throw err;
             console.log (`New Role ${answers} was added!`);
@@ -162,19 +161,14 @@ function addRole(){
         });
     });
 };
-function addEmployee(){
+function addNewEmployee(roleId, roleName){
+    let rId = '';
     inquirer.prompt([{
         type: 'list',
-        name: 'department_name',
-        message: 'What department does this role belong to?',
-        choices: connection.query(`SELECT department_name as choices, department_id as type FROM department`, (err, rows) => {
-            if (err){
-                throw err;
-            }else {
-                return (rows);
-            }
-        }),
-        },{
+        name: 'title',
+        message: "Chose new Employee's title",
+        choices: roleName
+    },{
         type: 'input',
         name: 'first_name',
         message: "Enter New Employee's First Name"
@@ -184,27 +178,65 @@ function addEmployee(){
         message: "Enter New Employee's Last Name"
     },{
         type: 'input',
-        name: 'title',
-        message: "Enter New Employee's Title"
-        },{
-        type: 'input',
         name: 'manager_id',
         message: "Enter New Employee's Manager's ID Number"
     }        
 
     ]).then(answers => {
-        const sql = `INSERT INTO employee (department_id, first_name, last_name, title, manager_id) VALUES (?,?,?,?,?)`;
-        connection.query(sql, answers.department_id, answers.first_name, answers.last_name, answers.title, answers.manager_id, (err,rows) => {
+        for(let i=0; i < roleId.length; i++){
+            if(answers.title === roleName[i]){
+                rId+= roleId[i];
+            }
+        }
+        const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+        connection.query(sql, [answers.first_name, answers.last_name, parseInt(rId), answers.manager_id], (err,rows) => {
             if (err)
                 throw err;
             console.log (`New Employee ${answers} was added!`);
-                promptUser();
+            promptUser();
         });
     });
 };
 
-// function updateEmployeeRole(){
-                // TODO: update answers.id to values by name questions with name.table id
+function updateEmployeeRole(){
+// TODO: update answers.id to values by name questions with name.table id
 
-// };
+};
+
+
+function addEmployee(){
+    let roleId = [];
+    let roleName = [];
+    let query = 'SELECT role_id, title FROM role'
+    connection.query(query,(err, rows) => {
+        if (err)
+        throw err;
+        rows.forEach(({role_id})=>{
+            roleId.push(role_id)
+        })
+        rows.forEach(({title})=>{
+            roleName.push(title)
+        })
+        addNewEmployee(roleId, roleName);
+    })
+}
+function addRole(){
+    let departmentList = [];
+    let departmentId = [];
+    let query = 'SELECT department_id, department_name FROM department'
+    connection.query(query,(err, rows) => {
+        if (err)
+        throw err;
+        rows.forEach(({department_id})=>{
+            departmentId.push(department_id)
+        })
+        rows.forEach(({department_name})=>{
+            departmentList.push(department_name)
+        })
+        addNewRole(departmentId, departmentList);
+    })
+}
+
+
 promptUser();
+

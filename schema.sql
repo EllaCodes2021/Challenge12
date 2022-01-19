@@ -14,9 +14,8 @@ CREATE TABLE employee (
     employee_id INTEGER AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
-    department_id INTEGER REFERENCES department(department_id) ON DELETE SET NULL,
-    manager_id INTEGER REFERENCES employee(employee_id),
-    title VARCHAR(30) NOT NULL REFERENCES role(title) ON DELETE SET NULL
+    role_id INTEGER REFERENCES role(role_id) ON DELETE SET NULL,
+    manager_id INTEGER REFERENCES employee(employee_id)
 );
 
 

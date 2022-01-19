@@ -27,10 +27,10 @@ VALUES
     ;
 
 
-INSERT INTO employee (department_id, first_name, last_name, title, manager_id)
+INSERT INTO employee ( first_name, last_name, role_id, manager_id)
 VALUES
-    (1, 'Kate', 'Thomas', 2, NULL),
-    (1,'Jack', 'Jones', 1, 1),
-    (2, 'Sherri', 'Philips', 4, NULL),
-    (2, 'Terry', 'James', 3, 3)
+    ('Kate', 'Thomas', 2, NULL),
+    ('Jack', 'Jones', 1, 1),
+    ('Sherri', 'Philips', 4, NULL),
+    ('Terry', 'James', 3, 3)
     ;
