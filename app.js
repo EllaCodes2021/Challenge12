@@ -2,6 +2,8 @@ const inquirer = require('inquirer');
 const ctable = require('console.table');
 const mysql = require('mysql2');
 
+
+
 const connection = mysql.createConnection({
     host: 'localhost',
     user: 'root',
@@ -71,7 +73,7 @@ function promptUser() {
                 addEmployee();
                 break;
             case 'UPDATE_role':
-                updateEmployeeRole();
+                chooseEmployee();
                 break;
             default:
                 connection.end();
@@ -101,10 +103,10 @@ function viewAllRoles(){
 
 };
 function viewAllEmployees(){
-    const sql = `Select e1.employee_id, e1.first_name, e1.last_name, department.department_name AS department, manager.first_name as manager, role.title as title from employee as E1
-    Left join employee as manager on e1.manager_id = manager.employee_id
-    JOIN department ON E1.department_id = department.department_id 
-    join role on E1.title = role.role_id;
+    const sql = `Select emp.employee_id, emp.first_name, emp.last_name, department.department_name AS department, manager.first_name AS manager, role.title AS title FROM employee AS emp
+    Left JOIN employee AS manager ON emp.manager_id = manager.employee_id
+    JOIN department ON emp.role_id = department.department_id 
+    JOIN role ON emp.role_id = role.role_id;
     `;
     connection.query(sql, (err,rows) => {
         if (err)
@@ -121,7 +123,7 @@ function addDepartment(){
     message: 'Enter New Department Name',}
     ]).then(answers => {
         const sql = `INSERT INTO department (department_name) VALUES(?)`;
-        console.log({answers});
+        // console.log({answers});
         connection.query(sql, answers.department_name, (err,rows) => {
             if (err)
                 throw err;
@@ -166,7 +168,7 @@ function addNewEmployee(roleId, roleName){
     inquirer.prompt([{
         type: 'list',
         name: 'title',
-        message: "Chose new Employee's title",
+        message: "Choose new Employee's title",
         choices: roleName
     },{
         type: 'input',
@@ -198,10 +200,45 @@ function addNewEmployee(roleId, roleName){
     });
 };
 
-function updateEmployeeRole(){
-// TODO: update answers.id to values by name questions with name.table id
+function updateEmployee(employeeId, employeeName,roleId, roleName){
+    // TODO: update answers.id to values by name questions with name.table id
+    // TODO: Ask about Nulls and how to enter them in SQL & how to do first & last name info.
+    let rId = '';
+    let nId = '';
 
+inquirer.prompt([{
+    type: 'list',
+    name: 'employee',
+    message: "Enter the Employee's ID Number to update their role.",
+    choices: employeeName
+    },{ 
+    type: 'list',
+    name: 'title',
+    message: "Choose the Employee's new title",
+    choices: roleName
+    }
+]).then(answers => {
+    for(let i=0; i < roleId.length; i++){
+        if(answers.title === roleName[i]){
+            rId+= roleId[i];
+        }
+    }
+    for(let i=0; i < employeeId.length; i++){
+        if(answers.employee === employeeName[i]){
+            nId+= employeeId[i];
+        }
+    }
+    const sql = `UPDATE employee SET role_id = ? WHERE employee_id = ?`;
+    ;
+    connection.query(sql, [parseInt(rid), parseInt(nid)], (err,rows) => {
+        if (err)
+            throw err;
+        // console.log (`Employee ${answers.employeeName} new role was added!`);
+        promptUser();
+    });
+});
 };
+
 
 
 function addEmployee(){
@@ -236,7 +273,47 @@ function addRole(){
         addNewRole(departmentId, departmentList);
     })
 }
+function chooseEmployee(roleId, roleName){
 
+    let employeeId = [];
+    let employeeFName = [];
+    let employeeLName = [];
+    let employeeName = [];
+    // let roleId2 = [];
+    // let roleName2 = [];
+    const query = `SELECT first_name, last_name, employee_id FROM employee`;
+    // const query2 = 'SELECT role_id, title FROM role'
+
+    connection.query(query, (err, rows) => {
+        console.log(query, rows);
+        if (err)
+            throw err;
+        rows.forEach(({employee_id})=>{
+            employeeId.push(employee_id)
+        })
+        rows.forEach(({first_name})=>{
+            employeeFName.push(first_name)
+        })
+        rows.forEach(({last_name})=>{
+            employeeLName.push(last_name)
+        })
+        employeeFName.forEach((firstName, index) => {
+            const lastName = employeeLName[index];
+            let firstAndLast = `${firstName} ${lastName}`;
+            console.log(firstAndLast);
+            employeeName.push(firstAndLast);
+            console.log(employeeId, employeeName);
+            updateEmployee(employeeId, employeeName,roleId, roleName);
+            });
+        })
+    
+        // console.log(employeeFName, employeeLName, employeeName, employeeId);
+        // employeeName = rows.map(({obj})=> obj.name);
+        // updateEmployee(roleId, roleName, employeeId, employeeName);
+
+
+    // employeeName
+}
 
 promptUser();
 
