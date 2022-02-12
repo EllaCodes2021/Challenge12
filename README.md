@@ -50,7 +50,6 @@ unlicense
   ## Features
   
   See Video of how to use app: https://github.com/EllaCodes2021/Challenge12/blob/main/utils/Employee_tracker.mp4
-  Employee tracker for 
 
   ## Questions
   If you have any questions please contact me
